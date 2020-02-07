@@ -1,0 +1,20 @@
+@{
+    ViewData["Title"] = "Detail Product";
+}
+
+@{
+    var detail = ViewBag.Detail;
+    foreach(var x in detail )
+    {
+     <div class="rows">
+         <div style="position: absolute;left: 100px;width: 50%;">
+                <img src=@x.url_img style="height: 250px">
+        </div>
+        <div style="position: absolute;right: 0px;width: 50%;"> 
+                <h2>@x.item_name</h2>
+                <p>@x.description</p>
+                <a href="https://localhost:5001/Cart/Add/@x.id" style="text-decoration: none;border-radius: 3px;padding: 3px;display: block;float: left;width: 20%;margin: 4px;text-align: center;color: white;background-color: green;">Add To Cart</a>
+        </div>
+     </div>   
+    }
+}

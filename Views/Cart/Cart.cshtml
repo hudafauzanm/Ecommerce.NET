@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<div>
+    <div class="text-left" style="position:relative; left:50px;">
+     CART
+    <input id="total_price" style="position:relative; left:800px" placeholder="TOTAL BIAYA BELANJA">
+    </div>
+</div>
+
+<div style="width: 100%;margin: 10px auto;background-color: white;padding: 10px;overflow: hidden;">
+    @{
+    var cart = ViewBag.Cart;
+    
+    foreach(var c in cart)
+    {
+        <div style="width: 100%;border: 2px solid;padding: 25px;margin: 5px;content: ;display: table;clear: both; ">
+            <div style="width:100%">
+                <img src=@c.url_img style="width: 20%;height: 150px;margin-bottom: 5px;s">
+                <a style="position:relative;left:50px">@c.item_name</a>
+                <input type="text" id="jumlah-@c.id" placeholder="Jumlah Item" value="" style="position:relative;left:70px">
+                <input id="price-@c.id"value=@c.price hidden>
+                <input id="subtotal-@c.id" name="jumlah"  placeholder="Sub Total"style="position:relative;left:70px">
+                <button class="btn btn-primary" id="a-@c.id" onclick="javascript: calculate(this)" style="position:relative;left:110px">Update</button>
+                <button class="btn btn-danger" id="danger-@c.id" onclick="javascript: deleteCart(this)" style="position:relative;left:120px">Remove</button>
+            </div>
+            
+        </div>
+    }
+
+}
+</div>
+
+<script type="text/javascript">
+    function calculate(id)
+    {
+        var hasil = id.id;
+        var x = hasil.substring(2,3);
+        var input = 'jumlah-'+x;
+        var price = 'price-'+x;
+        var subtotalid = 'subtotal-'+x;
+        var quantity = document.getElementById(input).value;
+        var iPrice = document.getElementById(price).value;
+        var subtotal = quantity*iPrice;
+        var arr = document.getElementsByName('jumlah');
+        var tot = 0;
+        for(var i = 0 ; i<arr.length;i++)
+        {
+                if(parseInt(arr[i].value))
+                tot += +parseInt(arr[i].value);
+        } 
+        document.getElementById(subtotalid).value = subtotal;
+        document.getElementById('total_price').value = subtotal;
+    }
+    function deleteCart(id)
+    {
+        var ambil = id.id;
+        var x = ambil.substring(7,8);
+        var path = '/Cart/Delete/'+x;
+        window.location = path;
+    }
+</script>
+
