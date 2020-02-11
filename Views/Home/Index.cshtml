@@ -1,6 +1,11 @@
-﻿@{
+﻿@model Razor.Models.IndexViewModel
+@{
     ViewData["Title"] = "Home Page";
 }
+
+
+
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
 <div class="text-left">
     <h1 class="display-5" style="position: relative;left:250px">DODOL.AN KARYA ANAK BANGSA</h1>
@@ -9,8 +14,60 @@
 <div class="text-left">
     <div style="text-size: 50px;padding:20px" >REKOMENDASI MAKANAN</div>
 </div>
+    <div class="text-left">
+                        <label>Sort</label>
+                    <select name="Sort" id = "Sort">
+                    <option value = "1">Sort By Name Asc</option>
+                    <option value = "2">Sort By Name Desc</option>
+                    <option value = "3">Sort By Price Asc</option>
+                    <option value = "4">Sort By Price Desc</option>
+                    <option value = "5">Sort By Created</option>
+                    <option value = "6">Sort By Published</option>
+                    </select>
+                    <input type="submit" class="btn btn-success" onclick="javascript: sort_btn(this)"> 
+                        <label>Search</label>
+                    <input name="Search" id="Search" placeholder="Pencarian" style="width: 200px;" >
+                    <input type="submit" class="btn btn-success" onclick="javascript: search_btn(this)">
+    </div>
+    <div class="text-center">
+        
+    @if (Model.Pager.EndPage > 1)
+        {
+            <ul class="pagination">
+                <input name="Search" id="PerPage" placeholder=""style="position: relative;left:30px;width:50px;" >
+                <input type="submit" class="btn btn-success" style="position: relative;left:35px;" onclick="javascript: page_btn(this)">
+                @if (Model.Pager.CurrentPage > 1)
+                {
+                        <li>
+                        <a href="~/Home/Index">First</a>
+                        </li>
+                        <li>
+                            <a href="~/Home/Index?Sort=@ViewBag.Sort&Search=@ViewBag.Search&page=@(Model.Pager.CurrentPage - 1)">Previous</a>
+                        </li>
+                }
+                @for (var halaman = Model.Pager.StartPage; halaman <= Model.Pager.EndPage; halaman++)
+                {
+                    
+                        <li class="@(halaman == Model.Pager.CurrentPage ? "active" : "")">
+                        <a href="~/Home/Index?Sort=@ViewBag.Sort&Search=@ViewBag.Search&page=@halaman">@halaman</a>
+                        </li>
+                }
+
+                @if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+                {
+                        <li>
+                        <a href="~/Home/Index?Sort=@ViewBag.Sort&Search=@ViewBag.Search&page=@(Model.Pager.CurrentPage + 1)">Next</a>
+                        </li>
+                        <li>
+                            <a href="~/Home/Index?Sort=@ViewBag.Sort&Search=@ViewBag.Search&page=@(Model.Pager.TotalPages)">Last</a>
+                        </li>
+                }
+            </ul>
+        }
+</div>
+<div>
         @{
-            var item = ViewBag.Item;
+            var item = Model.Item;
             foreach(var x in item)
             {
                 <div style="border: 1px solid gainsboro;padding: 10px;float: left;width: 250px;height:400px;margin: 5px;">
@@ -23,3 +80,30 @@
             }
         }
 </div>
+
+<script type="text/javascript">
+    function sort_btn()
+    {
+        var page = '@ViewBag.PerPage';
+        var search = '@ViewBag.Search';
+        var sort = document.getElementById('Sort').value;
+        var path = '/Home/Index?Sort='+sort+'&Search='+search+'&PerPage'+page;
+        window.location.href = path;
+    }
+    function search_btn()
+    {
+        var page = '@ViewBag.PerPage';
+        var sort = '@ViewBag.Sort';
+        var search = document.getElementById('Search').value;
+        var path = '/Home/Index?Search='+search+'&Sort='+sort+'&PerPage'+page;
+        window.location.href = path;
+    }
+    function page_btn()
+    {
+        var search = '@ViewBag.Search';
+        var sort = '@ViewBag.Sort';
+        var page = document.getElementById('PerPage').value;
+        var path = '/Home/Index?PerPage='+page+'&Search='+search+'&Sort='+sort;
+        window.location.href = path;
+    }
+</script>

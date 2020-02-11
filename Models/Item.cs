@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,6 +12,8 @@ namespace Razor.Models
         public double price{get;set;}
         public string description{get;set;}
         public int rating {get;set;}
+        public DateTime created_at{get;set;}
+        public DateTime published_at{get;set;}
         public ICollection<Transaksi> Transaksi{get;set;}
     }
 }
