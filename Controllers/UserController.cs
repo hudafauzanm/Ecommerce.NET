@@ -43,6 +43,23 @@ namespace Razor.Controllers
             return Ok(users);
         }
 
+        [HttpPost("Registrasi")]
+        public IActionResult Registrasi(string Username,string Email ,string Password,int Role )
+        {
+            User User = new User()
+            {
+                username = Username,
+                email = Email,
+                password = Password,
+                role = Role,
+                created_at = DateTime.Now,
+                published_at = DateTime.Now
+            };
+            AppDbContext.User.Add(User);
+            AppDbContext.SaveChanges();
+            return RedirectToAction("Index","User");
+        }
+
         [HttpPost("login")]
         public IActionResult Login(string Email ,string Password )
         {
@@ -51,14 +68,32 @@ namespace Razor.Controllers
             var user = AuthenticatedUser(Email,Password);
             if(user != null)
             {
-                var token = GenerateJwtToken(user);
-                HttpContext.Session.SetString("JWTToken",token);
-                var get = HttpContext.Session.GetString("JWTToken");
-                return RedirectToAction("Index","Home");
+                if(user.role == 1)
+                {
+                    var token = GenerateJwtToken(user);
+                    HttpContext.Session.SetString("JWTToken",token);
+                    HttpContext.Session.SetString("Id",user.id.ToString());
+                    var get = HttpContext.Session.GetString("JWTToken");
+                    return Redirect("/Admin/Admin/Index");
+                    
+                }
+                if(user.role == 2)
+                {
+                    var token = GenerateJwtToken(user);
+                    HttpContext.Session.SetString("JWTToken",token);
+                    HttpContext.Session.SetString("Id",user.id.ToString());
+                    var get = HttpContext.Session.GetString("JWTToken");
+                    return RedirectToAction("Index","Home");
+                }
             }
             return View();
         }
 
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index","User");
+        }
         private string GenerateJwtToken(User user)
         {
             var secuityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]));
@@ -93,6 +128,8 @@ namespace Razor.Controllers
                 {
                     user = new User
                     {
+                        id = i.id,
+                        role = i.role,
                         email = Email,
                         password = Password,
                     };

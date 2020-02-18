@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Data Transaksi";
+    ViewData["CartId"] = ViewBag.CartId;
+}
+<form class="form-group" asp-action="Refresh" asp-controller="Purchase" method="post" enctype="multipart/form-data">
+            <button type="submit" class="btn btn-success">Refresh</button>
+</form>
+<input id="myInput" type="text" placeholder="Search..">
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Order</th>
+      <th scope="col">Transaction</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody id="myTable">
+    
+    @{
+        var transaksi = ViewBag.Transaksi;
+        foreach(var t in transaksi)
+        {
+            <tr>
+            <th scope="row">@t.id</th>
+            <td>@t.order_id</td>
+            <td>@t.transaction_id</td>
+            <td>@t.gross_amount</td>
+            <td><span class="badge badge-primary" style="font-size: 16px;text-transform: capitalize">@t.transaction_status</span></td>
+            </tr>
+        }
+    } 
+    
+  </tbody>
+</table>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>

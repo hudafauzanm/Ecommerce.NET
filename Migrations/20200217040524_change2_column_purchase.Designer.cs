@@ -10,8 +10,8 @@ using Razor.Data;
 namespace Razor.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20200210072658_add_colomn_created_at_published_at")]
-    partial class add_colomn_created_at_published_at
+    [Migration("20200217040524_change2_column_purchase")]
+    partial class change2_column_purchase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -75,6 +75,97 @@ namespace Razor.Migrations
                     b.ToTable("Item");
                 });
 
+            modelBuilder.Entity("Razor.Models.Purchase", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("User_id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("alamat")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("kodepos")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("nama_pemesan")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("published_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("transaction_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("User_id");
+
+                    b.HasIndex("transaction_id");
+
+                    b.ToTable("Purchase");
+                });
+
+            modelBuilder.Entity("Razor.Models.Transaction_Details", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("_account")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("_actions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("currency")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("fraud_status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("gross_amount")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("merchant_id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("order_id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("signature_key")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("status_code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("status_message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("transaction_id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("transaction_status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("transaction_time")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Transaction_Details");
+                });
+
             modelBuilder.Entity("Razor.Models.Transaksi", b =>
                 {
                     b.Property<int>("Item_id")
@@ -123,6 +214,21 @@ namespace Razor.Migrations
                     b.HasKey("id");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("Razor.Models.Purchase", b =>
+                {
+                    b.HasOne("Razor.Models.User", "User")
+                        .WithMany("Purchases")
+                        .HasForeignKey("User_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Razor.Models.Transaction_Details", "Transaction_Details")
+                        .WithMany()
+                        .HasForeignKey("transaction_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Razor.Models.Transaksi", b =>

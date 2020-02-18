@@ -77,6 +77,8 @@ namespace Razor
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                // app.UseExceptionHandler("/Home/Error");
+                // app.UseHsts();
             }
             else
             {
@@ -97,9 +99,6 @@ namespace Razor
             app.Use(async (context, next) =>
             {
                 var JWToken = context.Session.GetString("JWTToken");
-                Console.WriteLine("==================================");
-                Console.WriteLine(JWToken);
-                Console.WriteLine("==================================");
 
                 if (!string.IsNullOrEmpty(JWToken))
                 {
@@ -113,6 +112,13 @@ namespace Razor
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapAreaControllerRoute(
+                    name: "Admin",
+                    areaName: "Admin",
+                    pattern: "Admin/{controller=Admin}/{action=Index}/{id?}"
+
+                );
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=User}/{action=Index}/{id?}");

@@ -1,0 +1,278 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+<style>
+    table.blueTable {
+  border: 1px solid #1C6EA4;
+  background-color: #EEEEEE;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+table.blueTable td, table.blueTable th {
+  border: 1px solid #AAAAAA;
+  padding: 3px 2px;
+}
+table.blueTable tbody td {
+  font-size: 13px;
+}
+table.blueTable tr:nth-child(even) {
+  background: #D0E4F5;
+}
+table.blueTable thead {
+  background: #1C6EA4;
+  background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  border-bottom: 2px solid #444444;
+}
+table.blueTable thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #D0E4F5;
+}
+table.blueTable thead th:first-child {
+  border-left: none;
+}
+
+table.blueTable tfoot {
+  font-size: 14px;
+  font-weight: bold;
+  color: #FFFFFF;
+  background: #D0E4F5;
+  background: -moz-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  background: -webkit-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  background: linear-gradient(to bottom, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  border-top: 2px solid #444444;
+}
+table.blueTable tfoot td {
+  font-size: 14px;
+}
+table.blueTable tfoot .links {
+  text-align: right;
+}
+table.blueTable tfoot .links a{
+  display: inline-block;
+  background: #1C6EA4;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+</style>
+@{
+
+}
+<div class="text-left">
+    <h1 class="display-5" style="position: relative;left:250px">DODOL.AN KARYA ANAK BANGSA</h1>
+</div>
+
+    <div id="contact-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Form Item</h3>
+                </div>
+                <form  asp-action="Add" asp-controller="Admin" method="post" id="contactForm" name="contact" role="form">
+                    <div class="modal-body">                
+                        <div class="form-group">
+                            <label for="name">Nama Item</label>
+                            <input type="text" name="Name_item" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Harga</label>
+                            <input type="text" name="Price" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="rating">Rating</label>
+                            <select name="Rating" class="form-control">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">URL Gambar</label>
+                            <input type="text" name="Img_url" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Deskripsi</label>
+                            <textarea name="Deskripsi" class="form-control"></textarea>
+                        </div>                    
+                    </div>
+                    <div class="modal-footer">                    
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <input type="submit" class="btn btn-success" id="submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+<div style="width: 880px;margin: 35px auto;background-color: white;padding: 20px;overflow: hidden;">
+<div style="position: relative;left:0px">
+        <button type="button" class="btn btn-info btn" data-toggle="modal" data-target="#contact-modal" >Tambah Item</button>
+</div>
+<div class="container">
+    <div style="width: 50%; float:left">
+    <form class="form-group" asp-action="Export" asp-controller="Admin" method="post">
+        <button type="submit" class="btn btn-success">Export</button>
+    </form>
+    </div>
+    <div style="width: 50%; float:right">
+        <form class="form-group" asp-action="Import" asp-controller="Admin" method="post" enctype="multipart/form-data">
+            <input type="file" name="Upload" value="Upload">
+            <button type="submit" class="btn btn-success">Import</button>
+        </form>
+    </div>
+</div>
+
+  
+        <table id="blueTable" class="blueTable">
+            <thead>
+            <tr>
+            <th>No</th>
+            <th>Nama Item</th>
+            <th>Harga</th>
+            <th>Image URL</th>
+            <th>Description</th>
+            <th>Rating</th>
+            <th></th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+            <td colspan="5">
+            <div class="links"><a href="#">&laquo;</a> <a class="active" href="#">1</a> <a href="#">2</a> <a href="#">3</a> <a href="#">4</a> <a href="#">&raquo;</a></div>
+            </td>
+            </tr>
+            </tfoot>
+            <tbody>
+@{
+    var item = ViewBag.Item;
+    foreach(var x in item)
+    {
+            <tr>
+            <td id="id-@x.id">@x.id</td>
+            <td id="nama-@x.id">@x.item_name</td>
+            <td id="price-@x.id">@x.price</td>
+            <td id="url-@x.id">@x.url_img</td>
+            <td id="desc-@x.id">@x.description</td>
+            <td id="rating-@x.id">@x.rating</td>
+            <td>
+            <button type="button" id="e-@x.id" onclick="javascript: get(this)" class="btn btn-info" data-toggle="modal" data-target="#contact-modal2">Edit</button>
+              <div id="contact-modal2" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Edit Item</h3>
+                            </div>
+                            <form  asp-action="Edit" asp-controller="Admin" method="post" id="editForm" name="edit" role="form">
+                                <div class="modal-body">
+                                    <input type="text" id="itemid" name="Id_item" class="form-control">                
+                                    <div class="form-group">
+                                        <label for="name">Nama Item</label>
+                                        @x.item_name
+                                        <input type="text" id="itemnama" name="Name_item" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Harga</label>
+                                        <input type="text" id="itemharga" name="Price" class="form-control" >
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="rating">Rating</label>
+                                        <select name="Rating" class="form-control" id="itemrating">
+                                            <option>@x.rating</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">URL Gambar</label>
+                                        <input type="text" name="Img_url" class="form-control" id="itemurl">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="message">Deskripsi</label>
+                                        <textarea name="Deskripsi" class="form-control" id="itemdesc"></textarea>
+                                    </div>                    
+                                </div>
+                                <div class="modal-footer">                    
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                    <input type="submit" class="btn btn-success" id="submit">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div> 
+            <button type="button" class="btn btn-danger btn" onclick="javascript: del(this)" id="d-@x.id" data-toggle="modal" data-target="#contact-modal3">Remove</button>
+            <div id="contact-modal3" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Delete Item</h3>
+                            </div>
+                            <form  asp-action="Delete" asp-controller="Admin" method="post" id="editForm" name="edit" role="form">
+                                <div class="modal-body">
+                                    <input type="text" id="deleteid" name="Id_item" class="form-control" hidden>                
+                                    Yakin Mau Hapus Data ini?          
+                                </div>
+                                <div class="modal-footer">                    
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                                    <input type="submit" class="btn btn-danger" id="submit">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div> 
+            </td>
+            </tr>
+    }
+}
+            </tbody>
+            </table>
+    
+</div>
+<script>
+  function get(id)
+  {
+    var ambil = id.id;
+    var no = ambil.substring(2,5);
+    console.log(no);
+    var id = 'id-'+no;
+    console.log(id);
+    var nama = 'nama-'+no;
+    var price = 'price-'+no;
+    var desc = 'desc-'+no;
+    var rating = 'rating-'+no;
+    var img = 'url-'+no;
+
+    var ids = document.getElementById(id).innerHTML;
+    var namas = document.getElementById(nama).innerHTML;
+    var prices = document.getElementById(price).innerHTML;
+    var descs = document.getElementById(desc).innerHTML;
+    var ratings = document.getElementById(rating).innerHTML;
+    var imgs = document.getElementById(img).innerHTML;
+
+    document.getElementById('itemid').value = ids;
+    document.getElementById('itemnama').value = namas;
+    document.getElementById('itemharga').value = prices;
+    document.getElementById('itemdesc').value = descs;
+    document.getElementById('itemurl').value = imgs;
+    document.getElementById('itemrating').value = ratings;
+
+  }
+
+  function del(id)
+  {
+    var ambil = id.id;
+    var no = ambil.substring(2,5);
+    console.log(no);
+
+    document.getElementById('deleteid').value = no;
+  }
+</script>

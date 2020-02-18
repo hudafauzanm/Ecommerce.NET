@@ -1,5 +1,6 @@
 @{
     ViewData["Title"] = "Detail Product";
+    ViewData["CartId"] = ViewBag.CartId;
 }
 
 @{
@@ -13,8 +14,69 @@
         <div style="position: absolute;right: 0px;width: 50%;"> 
                 <h2>@x.item_name</h2>
                 <p>@x.description</p>
-                <a href="https://localhost:5001/Cart/Add/@x.id" style="text-decoration: none;border-radius: 3px;padding: 3px;display: block;float: left;width: 20%;margin: 4px;text-align: center;color: white;background-color: green;">Add To Cart</a>
+                <button type="button" class="btn btn-info btn" data-toggle="modal" data-target="#contact-modal">Add To Cart</button>
         </div>
      </div>   
     }
 }
+<div id="contact-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cart</h3>
+                <input class="btn btn-primary" name="submitButton" id="addCart" value="Add Cart" type="button">           
+            </div>
+            
+                <form  asp-action="Add" asp-controller="Cart" method="post" id="contactForm" name="contact" role="form">
+                <div class="modal-body">                
+                    <div class="d-block my-3">
+                        <label>Cart</label>
+                        <select name="Cart" id = "Sort">
+                        @{
+                            var cart = ViewBag.Cart;
+                            foreach(var c in cart)
+                            {
+                                <option value =@c.id>Cart ID @c.id</option>
+                            }
+                        }
+                        </select>
+                    </div>
+                    @{
+                    var item = ViewBag.Detail;
+                    foreach(var x in item)
+                            {
+                                <input name="Id" value=@x.id hidden>
+                            }
+                    }
+                </div>
+                <div class="modal-footer">                    
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-success" id="submit">
+                </div>
+            </form>
+               
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script> 
+<script type="text/javascript"> 
+    $(document).ready(function () {
+        $("#addCart").click(function () {   
+            $.ajax({  
+                type: "POST",  
+                url: "https://localhost:5001/Produk/Detail/AddCart",
+                data: FormData,   
+                contentType: "application/json; charset=utf-8",  
+                success: function () {
+                    console.log("masuk success"); 
+                    alert("Cart Berhasil Ditambah");    
+                },  
+                error: function () {
+                    console.log("masuk error");   
+                    alert("Error ketika membuat Cart");  
+                }  
+            });
+            return false;  
+        });
+    });  
+</script>

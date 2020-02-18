@@ -11,25 +11,30 @@ using System.IdentityModel.Tokens.Jwt;
 using Razor;
 using Razor.Data;
 using Razor.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace Razor.Controllers
 {
     public class HomeController : Controller
     {
+         public IConfiguration Configuration;
         private readonly ILogger<HomeController> _logger;
         public AppDbContext AppDbContext {get;set;}
 
-        public HomeController(ILogger<HomeController> logger,AppDbContext appDbContext)
+        public HomeController(ILogger<HomeController> logger,AppDbContext appDbContext,IConfiguration configuration)
         {
             AppDbContext = appDbContext;
             _logger = logger;
+            Configuration = configuration;
         }
 
         [Authorize]
         [HttpGet]
         public IActionResult Index(int Sort,int? page,int PerPage,string Search = "")
         {
-
+            var user_id = HttpContext.Session.GetString("Id");
+             var cart = (from t in AppDbContext.Transaksi where t.User_id == int.Parse(user_id) select t.Cart_id).Distinct();
+            ViewBag.CartId = cart;
             ViewBag.Sort = Sort;
             ViewBag.Search = Search;
             ViewBag.PerPage = PerPage;
@@ -76,8 +81,10 @@ namespace Razor.Controllers
 
         public IActionResult Privacy()
         {
+            Console.WriteLine(Configuration["mypassword"]);
             return View();
         }
+
 
         [Authorize]
         public IActionResult Admin()
@@ -195,7 +202,29 @@ namespace Razor.Controllers
             }
             if(Sort == 6)
             {
+                var data = AppDbContext.Item.OrderByDescending(s => s.created_at).Where(s => s.rating >= 4);
+                var pager = new Pager(data.Count(), page);
+                var viewModel = new IndexViewModel
+                {
+                    Item = data.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                    Pager = pager
+                };
+                return viewModel;
+            }
+            if(Sort == 7)
+            {
                 var data = AppDbContext.Item.OrderBy(s => s.published_at).Where(s => s.rating >= 4);
+                var pager = new Pager(data.Count(), page);
+                var viewModel = new IndexViewModel
+                {
+                    Item = data.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                    Pager = pager
+                };
+                return viewModel;
+            }
+            if(Sort == 8)
+            {
+                var data = AppDbContext.Item.OrderByDescending(s => s.published_at).Where(s => s.rating >= 4);
                 var pager = new Pager(data.Count(), page);
                 var viewModel = new IndexViewModel
                 {

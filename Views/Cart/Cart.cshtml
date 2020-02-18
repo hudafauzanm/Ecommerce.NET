@@ -1,12 +1,17 @@
 @{
     ViewData["Title"] = "Cart";
+    ViewData["CartId"] = ViewBag.CartId;
 }
 
 <div>
-    <div class="text-left" style="position:relative; left:50px;">
-     CART
-    <input id="total_price" style="position:relative; left:800px" placeholder="TOTAL BIAYA BELANJA">
-    </div>
+    <form asp-action="Payment" asp-controller="Cart">
+        <div class="text-left" style="position:relative; left:50px;">
+        CART
+        <input id="cart_id" name="cart_id" value=@ViewBag.Id hidden> 
+        <input id="total_price" name="total_price" style="position:relative; left:800px" placeholder="TOTAL BIAYA BELANJA">
+        <button type="submit" style="position:relative; left:530px" class="btn btn-success">Bayar</button>
+        </div>
+    </form>
 </div>
 
 <div style="width: 100%;margin: 10px auto;background-color: white;padding: 10px;overflow: hidden;">
@@ -51,13 +56,13 @@
                 tot += +parseInt(arr[i].value);
         } 
         document.getElementById(subtotalid).value = subtotal;
-        document.getElementById('total_price').value = subtotal;
+        document.getElementById('total_price').value = tot;
     }
     function deleteCart(id)
     {
         var ambil = id.id;
         var x = ambil.substring(7,8);
-        var path = '/Cart/Delete/'+x;
+        var path = '/Cart/Delete?'+'id='+x+'&'+'cartid='+'@ViewBag.Id';
         window.location = path;
     }
 </script>

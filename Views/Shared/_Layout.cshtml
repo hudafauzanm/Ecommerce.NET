@@ -6,6 +6,10 @@
     <title>@ViewData["Title"] - DODOL.AN</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+     <script id="midtrans-script" type="text/javascript"
+    src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js" 
+    data-environment="sandbox" 
+    data-client-key="SB-Mid-client-O8YziGG3O8f_x_pL"></script> 
 </head>
 <body>
     <header>
@@ -16,7 +20,7 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse" style="position:relative; left:800px">
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse" style="position:relative; left:700px">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
@@ -24,11 +28,24 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Produk" asp-action="Index">Product</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Cart" asp-action="Index">Cart</a>
+                        <li class="nav-item dropdown">
+                            @* <a class="nav-link text-dark" asp-area="" asp-controller="Cart" asp-action="Index">Cart</a> *@
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Cart</a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    @{
+                                        ViewBag.CartId = ViewData["CartId"];
+                                        foreach(var cart in ViewBag.CartId)
+                                        {
+                                            <a class="dropdown-item" href="~/Cart/Index/@cart">@cart</a>
+                                        }
+                                    }
+                                </div>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Admin">Admin</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Purchase" asp-action="Transaksi">Transaksi</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">LogOut</a>
                         </li>
                     </ul>
                 </div>
@@ -46,9 +63,11 @@
             &copy; 2020 - DODOL.AN - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+     
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
     @RenderSection("Scripts", required: false)
 </body>
 </html>

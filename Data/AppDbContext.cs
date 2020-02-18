@@ -9,8 +9,8 @@ namespace Razor.Data
        public DbSet<Item> Item {get;set;}
        public DbSet<User> User {get;set;}
        public DbSet<Transaksi> Transaksi {get;set;}
-    //    public DbSet<Pagination> Pagination {get;set;}
-
+       public DbSet<Purchase> Purchase {get;set;}
+       public DbSet<Transaction_Details> Transaction_Details {get;set;}
        public AppDbContext(DbContextOptions options) : base (options)
        {
         

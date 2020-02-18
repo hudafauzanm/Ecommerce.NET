@@ -1,5 +1,6 @@
 @{
     ViewData["Title"] = "Login";
+	Layout = "_LayoutLogin";
 }
 
 
@@ -17,13 +18,13 @@
 						<div class="input-group-prepend">
 							<span class="input-group-text"><i class="fas fa-user"></i></span>
 						</div>
-						<input type="text" name="Email" id="email" class="form-control" placeholder="Email">
+						<input type="email" name="Email" id="email" class="form-control" placeholder="Email" required>
 					</div>
 					<div class="input-group form-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text"><i class="fas fa-key"></i></span>
 						</div>
-						<input type="password" name="Password" id="password" class="form-control" placeholder="password">
+						<input type="password" name="Password" id="password" class="form-control" placeholder="password" requiredx>
 					</div>
 					<div class="row align-items-center remember">
 					</div>
@@ -34,7 +35,7 @@
 			</div>
 			<div class="card-footer">
 				<div class="d-flex justify-content-center links">
-					Don't have an account?<a href="#">Sign Up</a>
+					Don't have an account?<a href="#" data-toggle="modal" data-target="#contact-modal">Sign Up</a>
 				</div>
 				<div class="d-flex justify-content-center">
 					<a href="#">Forgot your password?</a>
@@ -43,6 +44,42 @@
 		</div>
 	</div>
 </div>
+<div id="contact-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Form Registrasi</h3>
+                </div>
+                <form  asp-action="Registrasi" asp-controller="User" method="post" id="contactForm" name="contact" role="form">
+                    <div class="modal-body">                
+                        <div class="form-group">
+                            <label for="name">Nama</label>
+                            <input type="text" name="Username" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="text" name="Email" class="form-control">
+                        </div>
+						<div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" name="Password" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select name="Role" class="form-control">
+                                <option value="1">Admin</option>
+                                <option value="2">Member</option>
+                            </select>
+                        </div>                    
+                    </div>
+                    <div class="modal-footer">                    
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        <input type="submit" class="btn btn-success" id="submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> 
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">

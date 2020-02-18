@@ -1,0 +1,18 @@
+<div class="modal-body">
+      @{
+        var detail = ViewBag.Detail;
+        var va_number = ViewBag.Va;
+          <h3>RECEIPT PEMBAYARAN</h3>
+          <label>Status</label>
+          <h5>@detail.transaction_status</h5>
+          <label>Order Id</label>
+          <h5>@detail.order_id</h5>
+          <label>Transaction Id</label>
+          <h5>@detail.transaction_id</h5>
+          <label>Virtual Account Number</label>
+        foreach(var v in va_number)
+        {
+          <h5>@v.va_number</h5>
+        }
+      }
+</div>

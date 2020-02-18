@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 using Razor.Data;
 using Razor.Models;
+using System;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Razor.Controllers
 {
@@ -18,56 +21,83 @@ namespace Razor.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        [Authorize]
+        public IActionResult Index(int id)
         {
-            var item = from l in AppDbContext.Transaksi from y in AppDbContext.Item where l.Item_id == y.id select y;
+            var user_id = HttpContext.Session.GetString("Id");
+            var item = from l in AppDbContext.Transaksi where l.User_id == int.Parse(user_id) select l.Item; 
+            var cart = (from t in AppDbContext.Transaksi where t.User_id == int.Parse(user_id) where t.Cart_id == id select t.Cart_id).Distinct();
+            ViewBag.Id = id;
+            ViewBag.CartId = cart;
+            ViewBag.User = user_id;
             ViewBag.Cart = item; 
             return View("Cart");        
         }
 
-        public IActionResult Add(int id)
+        public IActionResult Add(string Id,string Cart)
         {
             var item = from l in AppDbContext.Transaksi from y in AppDbContext.Item where l.Item_id == y.id select y;
             ViewBag.Cart = item; 
+            var id_user = HttpContext.Session.GetString("Id");
             Cart cart = null;
-            if(!AppDbContext.Cart.Any())
+            if(Cart == null)
             {
+                Console.WriteLine("==============================Cart Baru");
+                Console.WriteLine("Masuk Cart baru");
                 cart = new Cart();
 
                 Transaksi transaksibaru = new Transaksi()
                 {
+                    User_id = int.Parse(id_user),
                     Cart = cart,
-                    Item_id = id
+                    Item_id = int.Parse(Id)
                 };
                 AppDbContext.Transaksi.Add(transaksibaru);
+            }
+            else
+            {
+                Console.WriteLine("==============================Cart Lama");
+                Console.WriteLine("Masuk Cart Lama");
+                var cartid = AppDbContext.Cart.Find(int.Parse(Cart));
+                Transaksi transaksilama = new Transaksi()
+                {
+                    User_id = int.Parse(id_user),
+                    Cart_id = cartid.id, 
+                    Item_id = int.Parse(Id)
+                };
+                AppDbContext.Transaksi.Add(transaksilama);
             }
             var x = from l in AppDbContext.Transaksi select l;
             foreach(var trans in x)
             {
-                if(trans.Cart_id == 3 && trans.Item_id == id)
+                if(trans.User_id == int.Parse(id_user) && trans.Item_id == int.Parse(Id))
                 {
                     return RedirectToAction("Index","Produk");
                 }
             }
-            var cartid = AppDbContext.Cart.Find(3);
-            Transaksi transaksilama = new Transaksi()
-            {
-                Cart_id = cartid.id, 
-                Item_id = id,
-            };
-            AppDbContext.Transaksi.Add(transaksilama);
             AppDbContext.SaveChanges();
-            
-            return View("Cart");
+            return RedirectToAction("Index","Produk");
         }
 
-        public IActionResult Delete(int id)
+        public IActionResult Delete(int id,int cartid)
         {
-            var cart = AppDbContext.Transaksi.Find(id,3);
+            var user_id = HttpContext.Session.GetString("Id");
+            Console.WriteLine(id);
+            Console.WriteLine(cartid);
+            var cart = AppDbContext.Transaksi.Find(id,cartid,int.Parse(user_id));
+            Console.WriteLine("===================================");
+            Console.WriteLine(cart);
             AppDbContext.Transaksi.Remove(cart);
             AppDbContext.SaveChanges();
             return RedirectToAction("Index","Cart");
         }
 
+        public IActionResult Payment(int total_price,int cart_id)
+        {
+            var cart = AppDbContext.Cart.Find(cart_id);
+            cart.total = total_price;
+            AppDbContext.SaveChanges();
+            return RedirectToAction("Index","Purchase");
+        }
     }
 }

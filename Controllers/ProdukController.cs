@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Razor.Data;
@@ -18,14 +19,37 @@ namespace Razor.Controllers
             _logger = logger;
         }
 
+        public IActionResult AddCart()
+        {
+            var user_id = HttpContext.Session.GetString("Id");
+            Cart cart = new Cart();
+            Transaksi transaksi = new Transaksi()
+            {
+                User_id = int.Parse(user_id),
+                Cart = cart,
+            };
+            AppDbContext.Transaksi.Add(transaksi);
+            AppDbContext.Cart.Add(cart);
+            AppDbContext.SaveChanges();
+            return PartialView();
+        }
         public IActionResult Detail(int id)
         {
+            var user_id = HttpContext.Session.GetString("Id");
             var item = from l in AppDbContext.Item where l.id == id select l;
+            var cart = (from c in AppDbContext.Transaksi where c.User_id == int.Parse(user_id) select c.Cart).Distinct();
+            var cartid = (from c in AppDbContext.Transaksi where c.User_id == int.Parse(user_id) select c.Cart.id).Distinct();
+            ViewBag.Id = id;
+            ViewBag.CartId = cartid;
+            ViewBag.Cart = cart;
             ViewBag.Detail = item;
             return View();        
         }
         public IActionResult Index(int Sort,int? page,int PerPage,string Search = "")
         {
+            var user_id = HttpContext.Session.GetString("Id");
+            var cart = (from t in AppDbContext.Transaksi where t.User_id == int.Parse(user_id) select t.Cart_id).Distinct();
+            ViewBag.CartId = cart;
             ViewBag.Sort = Sort;
             ViewBag.Search = Search;
 
@@ -47,7 +71,7 @@ namespace Razor.Controllers
             }
             if(PerPage != 0)
             {
-                var item = from l in AppDbContext.Item where l.rating >= 4 select l;
+                var item = from l in AppDbContext.Item select l;
                 var pager = new Pager(item.Count(),page,PerPage);
                 var viewModel = new IndexViewModel
                 {
@@ -131,7 +155,29 @@ namespace Razor.Controllers
             }
             if(Sort == 6)
             {
+                var data = AppDbContext.Item.OrderByDescending(s => s.created_at);
+                var pager = new Pager(data.Count(), page);
+                var viewModel = new IndexViewModel
+                {
+                    Item = data.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                    Pager = pager
+                };
+                return viewModel;
+            }
+            if(Sort == 7)
+            {
                 var data = AppDbContext.Item.OrderBy(s => s.published_at);
+                var pager = new Pager(data.Count(), page);
+                var viewModel = new IndexViewModel
+                {
+                    Item = data.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize),
+                    Pager = pager
+                };
+                return viewModel;
+            }
+            if(Sort == 8)
+            {
+                var data = AppDbContext.Item.OrderByDescending(s => s.published_at);
                 var pager = new Pager(data.Count(), page);
                 var viewModel = new IndexViewModel
                 {

@@ -1,6 +1,7 @@
 ﻿@model Razor.Models.IndexViewModel
 @{
     ViewData["Title"] = "Home Page";
+    ViewData["CartId"] = ViewBag.CartId;
 }
 
 
@@ -21,8 +22,10 @@
                     <option value = "2">Sort By Name Desc</option>
                     <option value = "3">Sort By Price Asc</option>
                     <option value = "4">Sort By Price Desc</option>
-                    <option value = "5">Sort By Created</option>
-                    <option value = "6">Sort By Published</option>
+                    <option value = "5">Latest Created</option>
+                    <option value = "6">Oldest Created</option>
+                    <option value = "7">Latest Published</option>
+                    <option value = "8">Oldest Published</option>
                     </select>
                     <input type="submit" class="btn btn-success" onclick="javascript: sort_btn(this)"> 
                         <label>Search</label>
@@ -34,7 +37,7 @@
     @if (Model.Pager.EndPage > 1)
         {
             <ul class="pagination">
-                <input name="Search" id="PerPage" placeholder=""style="position: relative;left:30px;width:50px;" >
+                <input name="Search" id="PerPage" placeholder="Show"style="position: relative;left:30px;width:50px;" >
                 <input type="submit" class="btn btn-success" style="position: relative;left:35px;" onclick="javascript: page_btn(this)">
                 @if (Model.Pager.CurrentPage > 1)
                 {
@@ -87,7 +90,7 @@
         var page = '@ViewBag.PerPage';
         var search = '@ViewBag.Search';
         var sort = document.getElementById('Sort').value;
-        var path = '/Home/Index?Sort='+sort+'&Search='+search+'&PerPage'+page;
+        var path = '/Home/Index?Sort='+sort+'&Search='+search+'&PerPage='+page;
         window.location.href = path;
     }
     function search_btn()
@@ -95,7 +98,7 @@
         var page = '@ViewBag.PerPage';
         var sort = '@ViewBag.Sort';
         var search = document.getElementById('Search').value;
-        var path = '/Home/Index?Search='+search+'&Sort='+sort+'&PerPage'+page;
+        var path = '/Home/Index?Search='+search+'&Sort='+sort+'&PerPage='+page;
         window.location.href = path;
     }
     function page_btn()

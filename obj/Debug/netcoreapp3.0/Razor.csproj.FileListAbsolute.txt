@@ -83,4 +83,12 @@ D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\Microsoft.IdentityModel.
 D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\Microsoft.IdentityModel.Tokens.dll
 D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\System.IdentityModel.Tokens.Jwt.dll
 D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\User\Login.cshtml.g.cs
-D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Home\Admin.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Shared\Admin.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Areas\Admin\Views\Admin\Admin.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Areas\Admin\Views\_ViewStart.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Areas\Admin\Views\_ViewImports.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Purchase\Purchase.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Shared\_Layout2.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Purchase\Transaksi.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Shared\_LayoutLogin.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Purchase\Receipt.cshtml.g.cs
