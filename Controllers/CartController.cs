@@ -25,10 +25,16 @@ namespace Razor.Controllers
         public IActionResult Index(int id)
         {
             var user_id = HttpContext.Session.GetString("Id");
+            var user_list = from l in AppDbContext.User where l.role == 1 select l;
+            var history_chat = from l in AppDbContext.Chat where l.receiver_id == int.Parse(user_id) || l.sender_id == int.Parse(user_id) orderby l.created_at select l;
             var item = from l in AppDbContext.Transaksi where l.User_id == int.Parse(user_id) select l.Item; 
             var cart = (from t in AppDbContext.Transaksi where t.User_id == int.Parse(user_id) where t.Cart_id == id select t.Cart_id).Distinct();
             ViewBag.Id = id;
+            //var user_list = from l in AppDbContext.User select l;
+            ViewBag.UL = user_list;
             ViewBag.CartId = cart;
+            ViewBag.Chat = history_chat;
+            //var user_id = HttpContext.Session.GetString("Id");
             ViewBag.User = user_id;
             ViewBag.Cart = item; 
             return View("Cart");        

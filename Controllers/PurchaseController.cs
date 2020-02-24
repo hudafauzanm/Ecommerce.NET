@@ -10,7 +10,10 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Mail;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Razor.Controllers
 {
@@ -22,6 +25,7 @@ namespace Razor.Controllers
         {
             AppDbContext = appDbContext;
         }
+        [Authorize]
         public IActionResult Index()
         {
             var user_id = HttpContext.Session.GetString("Id");
@@ -33,11 +37,15 @@ namespace Razor.Controllers
             var total = x.First();
             var id = y.First();
             var cart = (from c in AppDbContext.Transaksi where c.User_id == int.Parse(user_id) select c.Cart).Distinct();
+            //var user_id = HttpContext.Session.GetString("Id");
+            //ViewBag.User = user_id;
             ViewBag.CartId = cart;
             ViewBag.Item = item;
             ViewBag.User = user_id;
             ViewBag.Cart = total;
             ViewBag.CartID = id;
+            var user_list = from l in AppDbContext.User where l.role == 1 select l;
+            ViewBag.UL = user_list;
             
             return View("Purchase");
       
@@ -46,7 +54,7 @@ namespace Razor.Controllers
         {
             var user_id = HttpContext.Session.GetString("Id");
             var client = new HttpClient();
-            var transaksi = FormatPay(paymentMethod,Order_id,total_cart,bank_type);
+            var transaksi = FormatPay(firstName,lastName,email,paymentMethod,Order_id,total_cart,bank_type);
             var hasil = new StringContent(transaksi,Encoding.UTF8,"application/json");
             var token = Encoding.ASCII.GetBytes("SB-Mid-server-3xaB-yb0Px1mIPnaPLeNFXIF:");
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(token));
@@ -69,16 +77,19 @@ namespace Razor.Controllers
             };
             AppDbContext.Add(purchase);
             AppDbContext.SaveChanges();
+            //var mailservice = MailService(email);
             var pembayaran = (from pur in AppDbContext.Purchase where pur.User_id == int.Parse(user_id) orderby pur.transaction_id descending select pur.Transaction_Details).FirstOrDefault(); 
             var va = (from v in AppDbContext.Purchase where v.User_id == int.Parse(user_id) orderby v.transaction_id descending select v.Transaction_Details.va_numbers).FirstOrDefault();
             ViewBag.Va = va;
             ViewBag.Detail = pembayaran;
             var cartid = (from c in AppDbContext.Transaksi where c.User_id == int.Parse(user_id) select c.Cart.id).Distinct();
             ViewBag.CartId = cartid;
+            Thread task = new Thread(()=>MailService(email));
+            task.Start();
             return View("Receipt");
         }
 
-        public string FormatPay(string paymentMethod,string Order_id,string total_cart,string bank_type)
+        public string FormatPay(string firstName,string lastName,string email,string paymentMethod,string Order_id,string total_cart,string bank_type)
         {
             var user_id = HttpContext.Session.GetString("Id");
             var data = "";
@@ -113,6 +124,10 @@ namespace Razor.Controllers
                             order_id = "Order"+"-"+Order_id+"BCA1"+user_id,
                             gross_amount = total_cart
                         },
+                        customer_details = new
+                        {
+                            email = email
+                        },
                         bank_transfer = new 
                         {
                             bank = bank_type
@@ -131,6 +146,11 @@ namespace Razor.Controllers
                             order_id = "Order"+"-"+Order_id+"MAN"+user_id,
                             gross_amount = total_cart
                         },
+                        echannel = new
+                        {
+                            bill_info1 = "Payment For:",
+                            bill_info2 = "debt"
+                        } 
                     };
                     data = JsonConvert.SerializeObject(transaksi);
                     return data;
@@ -145,6 +165,10 @@ namespace Razor.Controllers
                             order_id = "Order"+"-"+Order_id+"BNI1"+user_id,
                             gross_amount = total_cart
                         },
+                        customer_details = new
+                        {
+                            email = email
+                        },
                         bank_transfer = new 
                         {
                             bank = bank_type
@@ -158,7 +182,15 @@ namespace Razor.Controllers
                     Console.WriteLine(bank_type);
                     var transaksi = new 
                     {
-                        payment_type = bank_type,
+                        payment_type = paymentMethod,
+                        bank_transfer = new 
+                        {
+                            bank = bank_type,
+                            permata = new 
+                            {
+                                recepient_name = firstName + lastName
+                            }
+                        },
                         transaction_details = new 
                         {
                             order_id = "Order"+"-"+Order_id+"Per"+user_id,
@@ -255,11 +287,17 @@ namespace Razor.Controllers
           return data;
         }
 
+
+        [Authorize]
         public IActionResult Transaksi()
         {
+            var user_list = from l in AppDbContext.User where l.role == 1 select l;
+            ViewBag.UL = user_list;
             var user_id = HttpContext.Session.GetString("Id");
             var pembayaran = from pur in AppDbContext.Purchase where pur.User_id == int.Parse(user_id) orderby pur.transaction_id select pur.Transaction_Details;
             var cart = (from c in AppDbContext.Transaksi where c.User_id == int.Parse(user_id) select c.Cart).Distinct();
+            //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.User = user_id;
             ViewBag.CartId = cart;
             ViewBag.Transaksi = pembayaran;
             return View("Transaksi");
@@ -270,7 +308,8 @@ namespace Razor.Controllers
             var client = new HttpClient();
             var user_id = HttpContext.Session.GetString("Id");
             var pembayaran = (from v in AppDbContext.Purchase where v.User_id == int.Parse(user_id) orderby v.transaction_id descending select v.Transaction_Details);
-           
+           //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.User = user_id;
             foreach(var order in pembayaran)
             {
                 var token = Encoding.ASCII.GetBytes("SB-Mid-server-3xaB-yb0Px1mIPnaPLeNFXIF:");
@@ -285,5 +324,54 @@ namespace Razor.Controllers
             AppDbContext.SaveChanges();
             return RedirectToAction("Transaksi","Purchase");
         }
+
+        public string MailService(string email)
+        {
+            var user_id = HttpContext.Session.GetString("Id");
+            var pembayaran = (from pur in AppDbContext.Purchase where pur.User_id == int.Parse(user_id) orderby pur.transaction_id descending select pur.Transaction_Details).FirstOrDefault(); 
+            var va = (from v in AppDbContext.Purchase where v.User_id == int.Parse(user_id) orderby v.transaction_id descending select v.Transaction_Details.va_numbers).FirstOrDefault();
+            MailAddress to = new MailAddress(email);
+            MailAddress from = new MailAddress("hudafauzanm@gmail.com");
+            MailMessage message = new MailMessage(from, to);
+            message.Subject = "Midtrans-Payment-Invoice";
+            
+            //HTML FORMAT
+            foreach(var v in va)
+            {
+                 message.Body = $@"<p>Hey {email},<br>
+                                <h3>INVOICE PEMBAYARAN</h3><br>
+                                <p>Transaksi ID : {pembayaran.transaction_id}<br>
+                                <p>Order ID : {pembayaran.order_id}<br>
+                                <p>Status : {pembayaran.transaction_status}<br>
+                                <p>Total Pembayaran : {pembayaran.gross_amount}<br>
+                                <p>Bank : {v.bank}<br>
+                                <h4> VA : {v.va_number} </h4><br>
+                                <p>Thankyou<br>
+                                <p>-- ADMIN<br>";
+            }
+           
+            message.IsBodyHtml = true;
+            //PLAIN FORMAT
+            // foreach(var v in va)
+            // {
+            //      message.Body = "Transaksi ID : "+pembayaran.transaction_id + "\n"+"Order ID : " + pembayaran.order_id + "\n" +"Status : "+ pembayaran.transaction_status +"\n"+"Total Pembayaran : "+ pembayaran.gross_amount + "\n"+"Bank : "+v.bank+"\n"+"Virtual Account : " + v.va_number;
+                 
+            // }
+            SmtpClient client = new SmtpClient("smtp.mailtrap.io", 587)
+            {
+                Credentials = new NetworkCredential("00d7115f88c37d", "2d3d930201d6ed"),
+                EnableSsl = true
+            };
+            try
+            {  
+                client.Send(message);
+                return ("success");
+            }
+            catch (SmtpException ex)
+            {
+            Console.WriteLine(ex.ToString());
+            return ("gagal");
+            }
+         }    
     }
 }

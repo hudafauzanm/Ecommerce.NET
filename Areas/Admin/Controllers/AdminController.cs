@@ -25,11 +25,17 @@ namespace Razor.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            // var token = HttpContext.Session.GetString("JWTToken");
-            // var jwtSec  = new JwtSecurityTokenHandler();
-            // var securityToken = jwtSec.ReadToken(token) as JwtSecurityToken;
-            // var sub = securityToken?.Claims.First(Claim => Claim.Type == "sub").Value;
+            var user_id = HttpContext.Session.GetString("Id");
+            var receive_chat = from l in AppDbContext.Chat where l.receiver_id == int.Parse(user_id) || l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
+            var sender_chat = from l in AppDbContext.Chat where l.sender_id == int.Parse(user_id) orderby l.created_at select l;
             var item = from l in AppDbContext.Item select l;
+            var user_list = from l in AppDbContext.User where l.role == 2 select l;
+            ViewBag.UL = user_list;
+            ViewBag.UnRead = unreadchat;
+            ViewBag.RChat = receive_chat;
+            ViewBag.SChat = sender_chat;
+            ViewBag.User = user_id;
             ViewBag.Item = item;
             return View("Admin");        
         }

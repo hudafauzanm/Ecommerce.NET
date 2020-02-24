@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -33,22 +34,33 @@ namespace Razor.Controllers
             AppDbContext.SaveChanges();
             return PartialView();
         }
+        [Authorize]
         public IActionResult Detail(int id)
         {
             var user_id = HttpContext.Session.GetString("Id");
             var item = from l in AppDbContext.Item where l.id == id select l;
             var cart = (from c in AppDbContext.Transaksi where c.User_id == int.Parse(user_id) select c.Cart).Distinct();
             var cartid = (from c in AppDbContext.Transaksi where c.User_id == int.Parse(user_id) select c.Cart.id).Distinct();
+            //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.User = user_id;
             ViewBag.Id = id;
             ViewBag.CartId = cartid;
             ViewBag.Cart = cart;
             ViewBag.Detail = item;
+
+            var user_list = from l in AppDbContext.User where l.role == 1 select l;
+            ViewBag.UL = user_list;
             return View();        
         }
+        [Authorize]
         public IActionResult Index(int Sort,int? page,int PerPage,string Search = "")
         {
             var user_id = HttpContext.Session.GetString("Id");
+            var user_list = from l in AppDbContext.User where l.role == 1 select l;
+            ViewBag.UL = user_list;
             var cart = (from t in AppDbContext.Transaksi where t.User_id == int.Parse(user_id) select t.Cart_id).Distinct();
+            //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.User = user_id;
             ViewBag.CartId = cart;
             ViewBag.Sort = Sort;
             ViewBag.Search = Search;

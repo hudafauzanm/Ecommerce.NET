@@ -92,3 +92,8 @@ D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Shared\_Layo
 D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Purchase\Transaksi.cshtml.g.cs
 D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Shared\_LayoutLogin.cshtml.g.cs
 D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Purchase\Receipt.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\MailKit.dll
+D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\MimeKit.dll
+D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\BouncyCastle.Crypto.dll
+D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\BCrypt.Net-Next.dll
+D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\libman.json

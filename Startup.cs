@@ -17,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Razor.Data;
+using Razor.SignalR;
 
 namespace Razor
 {
@@ -66,7 +67,7 @@ namespace Razor
                     ValidateAudience= false,
                 };
             });
-
+            services.AddSignalR();
             services.AddControllersWithViews();
            
         }
@@ -77,8 +78,6 @@ namespace Razor
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                // app.UseExceptionHandler("/Home/Error");
-                // app.UseHsts();
             }
             else
             {
@@ -86,6 +85,7 @@ namespace Razor
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
@@ -122,6 +122,8 @@ namespace Razor
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=User}/{action=Index}/{id?}");
+                
+                endpoints.MapHub<ChatHub>("/chatHub");
             });
         }
     }

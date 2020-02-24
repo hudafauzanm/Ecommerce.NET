@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Razor.Data;
 using Razor.Models;
 
+
 namespace Razor.Controllers
 {
     public class UserController : Controller
@@ -46,11 +47,13 @@ namespace Razor.Controllers
         [HttpPost("Registrasi")]
         public IActionResult Registrasi(string Username,string Email ,string Password,int Role )
         {
+            string mysalt = BCrypt.Net.BCrypt.GenerateSalt();
+            var BPassword = BCrypt.Net.BCrypt.HashPassword(Password,mysalt);
             User User = new User()
             {
                 username = Username,
                 email = Email,
-                password = Password,
+                password = BPassword,
                 role = Role,
                 created_at = DateTime.Now,
                 published_at = DateTime.Now
@@ -121,19 +124,17 @@ namespace Razor.Controllers
         private User AuthenticatedUser(string Email,string Password)
         {
             User user = null;
-            var x = from data in AppDbContext.User select new {data.username,data.password,data.id,data.role,data.email};
-            foreach(var i in x)
+            var x = (from data in AppDbContext.User where data.email == Email orderby data.id select new {data.username,data.password,data.id,data.role,data.email}).LastOrDefault();
+            var verify = BCrypt.Net.BCrypt.Verify(Password,x.password);
+            if(x.email == Email && (verify == true))
             {
-                if(i.email == Email && (i.password == Password))
+                user = new User
                 {
-                    user = new User
-                    {
-                        id = i.id,
-                        role = i.role,
-                        email = Email,
-                        password = Password,
-                    };
-                }
+                    id = x.id,
+                    role = x.role,
+                    email = Email,
+                    password = x.password,
+                };
             }
             return user;
         }

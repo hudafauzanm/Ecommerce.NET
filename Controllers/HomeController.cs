@@ -33,11 +33,22 @@ namespace Razor.Controllers
         public IActionResult Index(int Sort,int? page,int PerPage,string Search = "")
         {
             var user_id = HttpContext.Session.GetString("Id");
-             var cart = (from t in AppDbContext.Transaksi where t.User_id == int.Parse(user_id) select t.Cart_id).Distinct();
+            var cart = (from t in AppDbContext.Transaksi where t.User_id == int.Parse(user_id) select t.Cart_id).Distinct();
+            var receive_chat = from l in AppDbContext.Chat where l.receiver_id == int.Parse(user_id) || l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
+            var sender_chat = from l in AppDbContext.Chat where l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.UnRead = unreadchat;
+            ViewBag.RChat = receive_chat;
+            ViewBag.SChat = sender_chat;
+            ViewBag.User = user_id;
             ViewBag.CartId = cart;
             ViewBag.Sort = Sort;
             ViewBag.Search = Search;
             ViewBag.PerPage = PerPage;
+
+            var user_list = from l in AppDbContext.User where l.role == 1 select l;
+            ViewBag.UL = user_list;
 
             if(!String.IsNullOrEmpty(Search) || !String.IsNullOrWhiteSpace(Search))
             {
@@ -85,10 +96,28 @@ namespace Razor.Controllers
             return View();
         }
 
-
+        [HttpGet]
+        public IActionResult UpdateReadChat()
+        {
+            Console.WriteLine("Berhasil Berhasil");
+            var user_id = HttpContext.Session.GetString("Id");
+            var receiver = from r in AppDbContext.Chat where r.receiver_id == int.Parse(user_id) select r;
+            foreach(var recv in receiver)
+            {
+                var find = AppDbContext.Chat.Find(recv.id);
+                find.read_at = DateTime.Now;
+            }
+            AppDbContext.SaveChanges();
+            var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
+            return Ok(unreadchat);
+        }
         [Authorize]
         public IActionResult Admin()
         {
+            var user_list = from l in AppDbContext.User where l.role == 2 select l;
+            ViewBag.UL = user_list;
+            var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.User = user_id;
             var token = HttpContext.Session.GetString("JWTToken");
             var jwtSec  = new JwtSecurityTokenHandler();
             var securityToken = jwtSec.ReadToken(token) as JwtSecurityToken;
@@ -245,10 +274,11 @@ namespace Razor.Controllers
                 return viewModel;
             }
         }
-        // [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        // public IActionResult Error()
-        // {
-        //     //return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        // }
+        
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return RedirectToAction("Index","User");
+        }
     }
 }

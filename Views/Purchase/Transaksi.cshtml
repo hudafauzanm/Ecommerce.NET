@@ -1,6 +1,8 @@
 @{
     ViewData["Title"] = "Data Transaksi";
     ViewData["CartId"] = ViewBag.CartId;
+    ViewData["User"] = ViewBag.User;
+    ViewData["List"] = ViewBag.UL;
 }
 <form class="form-group" asp-action="Refresh" asp-controller="Purchase" method="post" enctype="multipart/form-data">
             <button type="submit" class="btn btn-success">Refresh</button>
