@@ -124,6 +124,7 @@ namespace Razor
                     pattern: "{controller=User}/{action=Index}/{id?}");
                 
                 endpoints.MapHub<ChatHub>("/chatHub");
+                endpoints.MapHub<PaymentHub>("/paymentHub");
             });
         }
     }

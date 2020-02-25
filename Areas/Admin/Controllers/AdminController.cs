@@ -31,6 +31,10 @@ namespace Razor.Areas.Admin.Controllers
             var sender_chat = from l in AppDbContext.Chat where l.sender_id == int.Parse(user_id) orderby l.created_at select l;
             var item = from l in AppDbContext.Item select l;
             var user_list = from l in AppDbContext.User where l.role == 2 select l;
+            var unreadnotif = (from l in AppDbContext.Notification where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") orderby l.created_at select l).Count();
+            var notif = (from n in AppDbContext.Notification orderby n.created_at descending select n).Take(5);
+            ViewBag.Notif = notif;
+            ViewBag.UN = unreadnotif;
             ViewBag.UL = user_list;
             ViewBag.UnRead = unreadchat;
             ViewBag.RChat = receive_chat;
@@ -174,5 +178,30 @@ namespace Razor.Areas.Admin.Controllers
                 byte[] bytes = Encoding.ASCII.GetBytes(csv);
                 return File(bytes, "application/text", "Item.csv");
             }   
+        
+        public IActionResult Transaksi()
+        {
+            var user_list = from l in AppDbContext.User where l.role == 1 select l;
+            ViewBag.UL = user_list;
+            var user_id = HttpContext.Session.GetString("Id");
+            var role = from r in AppDbContext.User where r.id == int.Parse(user_id) select r.role;
+            var pembayaran = from pur in AppDbContext.Purchase orderby pur.transaction_id select pur.Transaction_Details;
+            var cart = (from c in AppDbContext.Transaksi where c.User_id == int.Parse(user_id) select c.Cart).Distinct();
+            ViewBag.Role = role;
+            ViewBag.User = user_id;
+            ViewBag.CartId = cart;
+            ViewBag.Transaksi = pembayaran;
+            var receive_chat = from l in AppDbContext.Chat where l.receiver_id == int.Parse(user_id) || l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
+            var sender_chat = from l in AppDbContext.Chat where l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            ViewBag.UnRead = unreadchat;
+            ViewBag.RChat = receive_chat;
+            ViewBag.SChat = sender_chat;
+            var unreadnotif = (from l in AppDbContext.Notification where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") orderby l.created_at select l).Count();
+            var notif = (from n in AppDbContext.Notification where n.role_id == 1 orderby n.created_at descending select n).Take(5);
+            ViewBag.Notif = notif;
+            ViewBag.UN = unreadnotif;
+            return View("Transaksi");
+        }    
     }
 }

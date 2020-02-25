@@ -1,8 +1,13 @@
 @{
-    Layout = "_LayoutLogin";
+    Layout = "_Layoutt";
     ViewData["CartId"] = ViewBag.CartId;
     ViewData["User"] = ViewBag.User;
     ViewData["List"] = ViewBag.UL;
+    ViewData["RChat"] = ViewBag.RChat;
+    ViewData["SChat"] = ViewBag.SChat;
+    ViewData["URead"] = ViewBag.UnRead;
+    ViewData["UN"] = ViewBag.UN;
+    ViewData["Notif"] = ViewBag.Notif;
 }
 <!doctype html>
 <html lang="en">
@@ -156,13 +161,78 @@
           </select>
         </div>
         <hr class="mb-4">
-        <button class="btn btn-primary btn-lg btn-block" type="submit" data-toggle="modal" data-target="#exampleModalScrollable">Lanjutkan checkout</button>
+        <button class="btn btn-primary btn-lg btn-block" id="purchase" type="submit" data-toggle="modal" data-target="#exampleModalScrollable">Lanjutkan checkout</button>
       </form>
     </div>
   </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 <script>window.jQuery || document.write('<script src="https://getbootstrap.com/docs/docs/4.4/assets/js/vendor/jquery.slim.min.js"><\/script>')</script><script src="/docs/4.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous"></script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="form-validation.js"></script>
+<script>
+        $(document).ready(function(){
+            let connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+            let sender2 = $('#sender').val();
+            console.log(connection);
+            connection.start().then(function(){
+                console.log("Berhasil");
+            connection.invoke('getConnectionId')
+                .then(function (connectionId) {
+                    sessionStorage.setItem('conectionId', connectionId);
+                }).catch(err => console.error(err.toString()));;
+            connection.invoke('AddId',sender2)
+                .then(data => {
+                    console.log('Berhasil ambil Id')
+                }).catch(err => {
+                    return console.error(err.toString());
+                })
+            $('#send').on('click',function(event)
+            {
+                event.preventDefault();
+                let sender = $('#sender').val();
+                let receiver = $('#receiver').val();
+                let message = $('#msg').val();
+                var connectionId = sessionStorage.getItem('conectionId');
+                connection.invoke("SendMessage",sender,receiver,message,connectionId)
+                .then(data => {
+                    console.log('Berhasil')
+                }).catch(err => {
+                    return console.error(err.toString());
+                })
+            })
+            }).catch(function(err)
+            {
+                return console.error(err.toString());
+            });
+
+            connection.on("GotMessage",function(sender,receiver,message)
+            {
+                $('#chatbox').append('<li>' + sender + ':' + message + '</li>');
+            })
+        });
+    </script>
+    <script>
+        $(document).ready(function(){
+                let connection = new signalR.HubConnectionBuilder().withUrl("/paymentHub").build();
+                console.log(connection);
+                connection.start().then(function(){
+                $('#purchase').on('click',function()
+                {
+                    let username = $('#username').val();
+                    connection.invoke("SendNotification",username)
+                    .then(data => {
+                        console.log('Berhasil')
+                    }).catch(err => {
+                        return console.error(err.toString());
+                    })
+                })
+                }).catch(function(err)
+                {
+                    return console.error(err.toString());
+                });
+            });
+    </script>
 </body>
 </html>
+

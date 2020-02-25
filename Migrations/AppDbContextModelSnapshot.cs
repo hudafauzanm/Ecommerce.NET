@@ -50,7 +50,7 @@ namespace Razor.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("message")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("read_at")
                         .HasColumnType("datetime2");
@@ -97,6 +97,32 @@ namespace Razor.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Item");
+                });
+
+            modelBuilder.Entity("Razor.Models.Notification", b =>
+                {
+                    b.Property<Guid>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("created_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("read_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("receiver_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("role_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("sender_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Notification");
                 });
 
             modelBuilder.Entity("Razor.Models.Purchase", b =>

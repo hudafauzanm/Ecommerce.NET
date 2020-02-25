@@ -94,12 +94,26 @@ body {font-family: Arial, Helvetica, sans-serif;}
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse" style="position:relative; left:800px">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Admin">Admin</a>
+                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Admin" asp-action="Index">Admin</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Admin" asp-action="Transaksi">Transaksi</a>
                         </li>
                         <li class="nav-item dropdown">
-                            @* <a class="nav-link text-dark" asp-area="" asp-controller="Cart" asp-action="Index">Cart</a> *@
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Notifikasi</a>
+                            @{
+                                <a class="nav-link dropdown-toggle" href="#" id="notifid" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="openNotif()">Notifikasi(@ViewData["UN"])</a>
+                            }
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    
+                                    <ul id="notification">
+                                    @{
+                                        ViewBag.N = ViewData["Notif"];
+                                        foreach(var n in ViewBag.N)
+                                        {
+                                            <li> User : @n.sender_id Melakukan Checkout</li>
+                                        }
+                                    }
+                                    </ul>
                                 </div>
                         </li>
                         <li class="nav-item">
@@ -180,7 +194,7 @@ body {font-family: Arial, Helvetica, sans-serif;}
         $.ajax
             ({
                 type: 'GET',
-                url: '/Home/UpdateReadChat', 
+                url: '/Home/UpdateNotifChat', 
                 contentType: 'application/json; charset =utf-8',
                 success: function (data) {
                     document.getElementById("openchat").innerHTML = "CHAT(0)";
@@ -192,6 +206,22 @@ body {font-family: Arial, Helvetica, sans-serif;}
         }
         function closeForm() {
         document.getElementById("myForm").style.display = "none";
+        }
+    </script>
+    <script type="text/javascript">
+        function openNotif() {
+        $.ajax
+            ({
+                type: 'GET',
+                url: '/Home/UpdateNotifChat', 
+                contentType: 'application/json; charset =utf-8',
+                success: function (data) {
+                    document.getElementById("notifid").innerHTML = "Notifikasi(0)";
+                    },
+                error: function (result) {
+                    alert("Error Occured, Try Again");
+                }
+            });
         }
     </script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -240,7 +270,16 @@ body {font-family: Arial, Helvetica, sans-serif;}
             })
         });
     </script>
-    
+    <script>
+    $(document).ready(function(){
+          let connection = new signalR.HubConnectionBuilder().withUrl("/paymentHub").build();
+          console.log("Masuk connection payment")
+          connection.on("GotMessage2",function(username)
+            {
+                $('#notification').append('<li>' + username + ':' + 'Sudah Melakukan CheckOut' + '</li>');
+            })
+      });
+    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

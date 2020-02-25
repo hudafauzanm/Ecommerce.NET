@@ -36,7 +36,14 @@ namespace Razor.Controllers
             ViewBag.Chat = history_chat;
             //var user_id = HttpContext.Session.GetString("Id");
             ViewBag.User = user_id;
-            ViewBag.Cart = item; 
+            ViewBag.Cart = item;
+            var receive_chat = from l in AppDbContext.Chat where l.receiver_id == int.Parse(user_id) || l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
+            var sender_chat = from l in AppDbContext.Chat where l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.UnRead = unreadchat;
+            ViewBag.RChat = receive_chat;
+            ViewBag.SChat = sender_chat;
             return View("Cart");        
         }
 

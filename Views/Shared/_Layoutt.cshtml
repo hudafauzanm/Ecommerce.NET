@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - DODOL.AN</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+     <script id="midtrans-script" type="text/javascript"
+    src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js" 
+    data-environment="sandbox" 
+    data-client-key="SB-Mid-client-O8YziGG3O8f_x_pL"></script> 
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
+
+/* Button used to open the chat form - fixed at the bottom of the page */
+.open-button {
+  background-color: #555;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  bottom: 23px;
+  right: 28px;
+  width: 280px;
+}
+
+/* The popup chat - hidden by default */
+.chat-popup {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  right: 15px;
+  border: 3px solid #f1f1f1;
+  z-index: 9;
+}
+
+/* Add styles to the form container */
+.form-container {
+  max-width: 300px;
+  padding: 10px;
+  background-color: white;
+}
+
+/* Full-width textarea */
+.form-container textarea {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f1f1f1;
+  resize: none;
+  min-height: 200px;
+}
+
+/* When the textarea gets focus, do something */
+.form-container textarea:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Set a style for the submit/send button */
+.form-container .btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom:10px;
+  opacity: 0.8;
+}
+
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+  background-color: red;
+}
+
+/* Add some hover effects to buttons */
+.form-container .btn:hover, .open-button:hover {
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">DODOL.AN</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse" style="position:relative; left:700px">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Produk" asp-action="Index">Product</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Purchase" asp-action="Transaksi">Transaksi</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">LogOut</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        <button class="open-button" onclick="openForm()" style="width:100px;height:50px" id="openchat">CHAT(@ViewData["URead"])</button>
+
+        <div class="chat-popup" id="myForm">
+        <form class="form-container">
+            <h4>Chat</h4>
+            @{
+                ViewBag.User = ViewData["User"];
+                <input name="username" id="sender" value=@ViewBag.User hidden>
+            }
+            @{
+                ViewBag.List = ViewData["List"];
+                <label>Receive</label>
+                <select name="bank_type" id="receiver">
+                @foreach(var cek in ViewBag.List)
+                {
+                    <option value=@cek.id>@cek.username</option>
+                }
+                </select><br>
+            }
+            <label for="msg"><b>Message</b></label>
+            <textarea placeholder="Type message.." name="msg" id="msg" required></textarea>
+            <div style="width: 90%px; height: 100px; overflow-y: scroll;">
+                <ul id="chatbox">
+                   @{
+                       ViewBag.SChat = ViewData["SChat"];
+                       ViewBag.RChat = ViewData["RChat"];
+                       @foreach(var chat in ViewBag.RChat)
+                       {
+                           @if(chat.sender_id == int.Parse(ViewBag.User))
+                           {
+                               <li>
+                                Me : @chat.message 
+                               </li>
+                           }
+                           @if(chat.receiver_id == int.Parse(ViewBag.User))
+                           {
+                                <li>
+                                Dari @chat.sender_id : @chat.message
+                                </li>     
+                           }
+                       }
+                   } 
+                </ul>
+            </div>
+            <button type="submit" class="btn" id="send">Send</button>
+            <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+        </form>
+        </div>
+        </main>
+    </div>
+    <script type="text/javascript">
+        function openForm() {
+        document.getElementById("myForm").style.display = "block";
+        $.ajax
+            ({
+                type: 'GET',
+                url: '/Home/UpdateReadChat', 
+                contentType: 'application/json; charset =utf-8',
+                success: function (data) {
+                    document.getElementById("openchat").innerHTML = "CHAT(0)";
+                    },
+                error: function (result) {
+                    alert("Error Occured, Try Again");
+                }
+            });
+        }
+        function closeForm() {
+        document.getElementById("myForm").style.display = "none";
+        }
+    </script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function(){
+            let connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+            let sender2 = $('#sender').val();
+            console.log(connection);
+            connection.start().then(function(){
+                console.log("Berhasil");
+            connection.invoke('getConnectionId')
+                .then(function (connectionId) {
+                    sessionStorage.setItem('conectionId', connectionId);
+                }).catch(err => console.error(err.toString()));;
+            connection.invoke('AddId',sender2)
+                .then(data => {
+                    console.log('Berhasil ambil Id')
+                }).catch(err => {
+                    return console.error(err.toString());
+                })
+            $('#send').on('click',function(event)
+            {
+                event.preventDefault();
+                let sender = $('#sender').val();
+                let receiver = $('#receiver').val();
+                let message = $('#msg').val();
+                var connectionId = sessionStorage.getItem('conectionId');
+                connection.invoke("SendMessage",sender,receiver,message,connectionId)
+                .then(data => {
+                    console.log('Berhasil')
+                }).catch(err => {
+                    return console.error(err.toString());
+                })
+            })
+            }).catch(function(err)
+            {
+                return console.error(err.toString());
+            });
+
+            connection.on("GotMessage",function(sender,receiver,message)
+            {
+                $('#chatbox').append('<li>' + sender + ':' + message + '</li>');
+            })
+        });
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

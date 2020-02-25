@@ -46,6 +46,13 @@ namespace Razor.Controllers
             ViewBag.CartID = id;
             var user_list = from l in AppDbContext.User where l.role == 1 select l;
             ViewBag.UL = user_list;
+            var receive_chat = from l in AppDbContext.Chat where l.receiver_id == int.Parse(user_id) || l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
+            var sender_chat = from l in AppDbContext.Chat where l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.UnRead = unreadchat;
+            ViewBag.RChat = receive_chat;
+            ViewBag.SChat = sender_chat;
             
             return View("Purchase");
       
@@ -63,6 +70,17 @@ namespace Razor.Controllers
             var data_purchase = JsonConvert.DeserializeObject<Transaction_Details>(json);
             AppDbContext.Add(data_purchase);
             AppDbContext.SaveChanges();
+            var receive_chat = from l in AppDbContext.Chat where l.receiver_id == int.Parse(user_id) || l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
+            var sender_chat = from l in AppDbContext.Chat where l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.UnRead = unreadchat;
+            ViewBag.RChat = receive_chat;
+            ViewBag.SChat = sender_chat;
+            var user_list = from l in AppDbContext.User where l.role == 1 select l;
+            ViewBag.UL = user_list;
+            var cart = (from t in AppDbContext.Transaksi where t.User_id == int.Parse(user_id) select t.Cart_id).Distinct();
+            ViewBag.CartId = cart;
             Purchase purchase = new Purchase()
             {
                 nama_pemesan = firstName +" "+ lastName,
@@ -121,7 +139,7 @@ namespace Razor.Controllers
                         payment_type = paymentMethod,
                         transaction_details = new 
                         {
-                            order_id = "Order"+"-"+Order_id+"BCA1"+user_id,
+                            order_id = "Order"+"-"+Order_id+"BCA"+user_id,
                             gross_amount = total_cart
                         },
                         customer_details = new
@@ -162,7 +180,7 @@ namespace Razor.Controllers
                         payment_type = paymentMethod,
                         transaction_details = new 
                         {
-                            order_id = "Order"+"-"+Order_id+"BNI1"+user_id,
+                            order_id = "Order"+"-"+Order_id+"BNI"+user_id,
                             gross_amount = total_cart
                         },
                         customer_details = new
@@ -300,6 +318,13 @@ namespace Razor.Controllers
             ViewBag.User = user_id;
             ViewBag.CartId = cart;
             ViewBag.Transaksi = pembayaran;
+            var receive_chat = from l in AppDbContext.Chat where l.receiver_id == int.Parse(user_id) || l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
+            var sender_chat = from l in AppDbContext.Chat where l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.UnRead = unreadchat;
+            ViewBag.RChat = receive_chat;
+            ViewBag.SChat = sender_chat;
             return View("Transaksi");
         }
 

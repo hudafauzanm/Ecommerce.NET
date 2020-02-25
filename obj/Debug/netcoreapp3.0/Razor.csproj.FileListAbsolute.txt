@@ -97,3 +97,5 @@ D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\MimeKit.dll
 D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\BouncyCastle.Crypto.dll
 D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\BCrypt.Net-Next.dll
 D:\Users\bsi50128\Belajar\Razor\bin\Debug\netcoreapp3.0\libman.json
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Views\Shared\_Layoutt.cshtml.g.cs
+D:\Users\bsi50128\Belajar\Razor\obj\Debug\netcoreapp3.0\Razor\Areas\Admin\Views\Admin\Transaksi.cshtml.g.cs

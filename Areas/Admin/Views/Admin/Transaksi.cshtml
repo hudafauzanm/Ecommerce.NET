@@ -1,0 +1,151 @@
+@{
+    ViewData["Title"] = "Data Transaksi";
+    ViewData["CartId"] = ViewBag.CartId;
+    ViewData["User"] = ViewBag.User;
+    ViewData["List"] = ViewBag.UL;
+    ViewData["RChat"] = ViewBag.RChat;
+    ViewData["SChat"] = ViewBag.SChat;
+    ViewData["URead"] = ViewBag.UnRead;
+}
+<form class="form-group" asp-action="Refresh" asp-controller="Purchase" method="post" enctype="multipart/form-data">
+            <button type="submit" class="btn btn-success">Refresh</button>
+</form>
+<input id="myInput" type="text" placeholder="Search..">
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Order</th>
+      <th scope="col">Transaction</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Status</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody id="myTable">
+    
+    @{
+        var transaksi = ViewBag.Transaksi;
+        foreach(var t in transaksi)
+        {
+            <tr>
+            <th scope="row">@t.id</th>
+            <td>@t.order_id</td>
+            <td>@t.transaction_id</td>
+            <td>@t.gross_amount</td>
+            <td><span class="badge badge-primary" style="font-size: 16px;text-transform: capitalize">@t.transaction_status</span></td>
+            <td><a href="#" class="btn btn-primary" data-order=@t.order_id data-toggle="modal" data-target="#exampleModal">Konfirmasi</a></td>
+            </tr>
+        }
+    } 
+    
+  </tbody>
+</table>
+<div class="modal" id="exampleModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Konfirmasi Pembayaran</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h5>Tekan Konfirmasi untuk melakukan Konfirmasi Pembayaran</h5>
+          <input type="text" id="senderid" hidden value=@ViewBag.User>
+          <input type="text" id="modalorder" hidden>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" id="confirmation" class="btn btn-success">Konfirmasi</button>
+        </div>
+      </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+            $('#exampleModal').on('show.bs.modal', function (e) {
+            $('#modal-order').val(($(e.relatedTarget).data('order')).substring(12,14))
+    })
+   })
+</script>
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+<script>
+        $(document).ready(function(){
+            let connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+            let sender2 = $('#sender').val();
+            console.log(connection);
+            connection.start().then(function(){
+                console.log("Berhasil");
+            connection.invoke('getConnectionId')
+                .then(function (connectionId) {
+                    sessionStorage.setItem('conectionId', connectionId);
+                }).catch(err => console.error(err.toString()));;
+            connection.invoke('AddId',sender2)
+                .then(data => {
+                    console.log('Berhasil ambil Id')
+                }).catch(err => {
+                    return console.error(err.toString());
+                })
+            $('#send').on('click',function(event)
+            {
+                event.preventDefault();
+                let sender = $('#sender').val();
+                let receiver = $('#receiver').val();
+                let message = $('#msg').val();
+                var connectionId = sessionStorage.getItem('conectionId');
+                connection.invoke("SendMessage",sender,receiver,message,connectionId)
+                .then(data => {
+                    console.log('Berhasil')
+                }).catch(err => {
+                    return console.error(err.toString());
+                })
+            })
+            }).catch(function(err)
+            {
+                return console.error(err.toString());
+            });
+
+            connection.on("GotMessage",function(sender,receiver,message)
+            {
+                $('#chatbox').append('<li>' + sender + ':' + message + '</li>');
+            })
+        });
+    </script>
+    <script>
+        $(document).ready(function(){
+                let connection = new signalR.HubConnectionBuilder().withUrl("/paymentHub").build();
+                console.log(connection);
+                connection.start().then(function(){
+                $('#confirmation').on('click',function()
+                {
+                    let username = $('#senderid').val();
+                    let receiver = $('#modalorder').val();
+                    connection.invoke("SendConfirmation",username,receiver)
+                    .then(data => {
+                        console.log('Berhasil')
+                    }).catch(err => {
+                        return console.error(err.toString());
+                    })
+                })
+                }).catch(function(err)
+                {
+                    return console.error(err.toString());
+                });
+            });
+    </script>
+    

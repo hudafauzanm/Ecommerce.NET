@@ -111,9 +111,23 @@ namespace Razor.Controllers
             var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
             return Ok(unreadchat);
         }
+
+        public IActionResult UpdateNotifChat()
+        {
+            var notif = from r in AppDbContext.Notification select r;
+            foreach(var recv in notif)
+            {
+                var find = AppDbContext.Notification.Find(recv.id);
+                find.read_at = DateTime.Now;
+            }
+            AppDbContext.SaveChanges();
+            var unreadchat = (from l in AppDbContext.Notification where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") orderby l.created_at select l).Count();
+            return Ok(unreadchat);
+        }
         [Authorize]
         public IActionResult Admin()
         {
+            
             var user_list = from l in AppDbContext.User where l.role == 2 select l;
             ViewBag.UL = user_list;
             var user_id = HttpContext.Session.GetString("Id");
@@ -125,6 +139,13 @@ namespace Razor.Controllers
             var item = from l in AppDbContext.Item select l;
             ViewBag.Item = item;
             ViewBag.Username = sub;
+            var receive_chat = from l in AppDbContext.Chat where l.receiver_id == int.Parse(user_id) || l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            var unreadchat = (from l in AppDbContext.Chat where l.read_at == DateTime.Parse("0001-01-01 00:00:00.0000000") && l.receiver_id == int.Parse(user_id) orderby l.created_at select l).Count();
+            var sender_chat = from l in AppDbContext.Chat where l.sender_id == int.Parse(user_id) orderby l.created_at select l;
+            //var user_id = HttpContext.Session.GetString("Id");
+            ViewBag.UnRead = unreadchat;
+            ViewBag.RChat = receive_chat;
+            ViewBag.SChat = sender_chat;
             return View();
         }
 
